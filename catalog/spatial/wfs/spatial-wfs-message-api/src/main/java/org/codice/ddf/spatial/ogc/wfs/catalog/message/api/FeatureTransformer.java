@@ -24,7 +24,8 @@ import java.util.function.BiFunction;
  * Metacard.
  */
 public interface FeatureTransformer<T>
-    extends BiFunction<InputStream, WfsMetadata, Optional<Metacard>> {
+    extends BiFunction<InputStream, WfsMetadata<T>, Optional<Metacard>> {
+
   /**
    * @param featureMember - the featureMember to be de-serialized
    * @param metadata - information about the FeatureMember structure

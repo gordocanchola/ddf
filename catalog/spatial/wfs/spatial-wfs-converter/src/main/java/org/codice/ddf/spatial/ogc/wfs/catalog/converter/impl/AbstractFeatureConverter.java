@@ -146,6 +146,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     MetacardImpl mc = new MetacardImpl(metacardType);
     mc.setContentTypeName(metacardType.getName());
 
+    reader.moveDown(); // Move past featureMember
     while (reader.hasMoreChildren()) {
       reader.moveDown();
 
