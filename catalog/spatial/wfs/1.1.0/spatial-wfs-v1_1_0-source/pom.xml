@@ -170,6 +170,15 @@
             <version>${org.geotools.bundle.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-v1_0_0-schema-bindings</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-metacardtype-registry-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -205,8 +214,13 @@
                             platform-util,
                             platform-util-unavailableurls,
                             geospatial,
+                            spatial-wfs-v1_0_0-schema-bindings,
                             security-core-impl
                         </Embed-Dependency>
+                        <Import-Package>
+                            !org.bouncycastle.crypto.*,
+                            *
+                        </Import-Package>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Include-Resource>{maven-resources},target/classes/describable.properties</Include-Resource>
                     </instructions>

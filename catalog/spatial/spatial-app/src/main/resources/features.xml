@@ -37,6 +37,8 @@
 
     <feature name="spatial-wfs-core" version="${project.version}"
              description="Web Feature Service (WFS).">
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-message-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-message/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-urlresourcereader/${project.version}</bundle>
         <bundle>
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${xpp3.bundle.version}
@@ -45,6 +47,8 @@
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
         </bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-mapper/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-metacardtype-registry-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-metacardtype-registry/${project.version}</bundle>
     </feature>
 
     <feature name="spatial-wfs-v1_0_0" version="${project.version}"
@@ -147,13 +151,13 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-api/${project.version}</bundle>
         <feature>spatial-kml</feature>
         <feature>spatial-wfs-core</feature>
-        <feature>spatial-wfs-v1_0_0</feature>
-        <feature>spatial-wfs-v1_1_0</feature>
-        <feature>spatial-wfs-v2_0_0</feature>
         <feature>spatial-csw</feature>
         <feature>offline-gazetteer</feature>
         <feature>spatial-process-api</feature>
         <feature>spatial-wps-api</feature>
+        <!--<feature>spatial-wfs-v1_0_0</feature>-->
+        <feature>spatial-wfs-v1_1_0</feature>
+        <!--<feature>spatial-wfs-v2_0_0</feature>-->
     </feature>
 
 </features>
