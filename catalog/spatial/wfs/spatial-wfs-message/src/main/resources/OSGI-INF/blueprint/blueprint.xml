@@ -20,19 +20,21 @@
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <!-- Wire up the WfsTransformerProcessor -->
-    <bean id="wfsTransformerSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+
 
     <reference-list id="wfsTransformers"
                     interface="org.codice.ddf.spatial.ogc.wfs.catalog.message.api.FeatureTransformer"
                     availability="optional">
-        <reference-listener ref="wfsTransformerSortedList" bind-method="bindPlugin"
-                            unbind-method="unbindPlugin"/>
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin">
+            <bean class="org.codice.ddf.platform.util.SortedServiceList"/>
+        </reference-listener>
     </reference-list>
 
     <bean id="wfsTransformerProcessor" class="org.codice.ddf.spatial.ogc.wfs.catalog.message.WfsTransformerProcessor">
         <cm:managed-properties persistent-id="org.codice.ddf.spatial.ogc.wfs.catalog.message.WfsTransformerProcessor"
                                update-strategy="container-managed"/>
-        <argument ref="wfsTransformerSortedList"/>
+        <argument ref="wfsTransformers"/>
     </bean>
 
     <!-- Wire up the FeatureTransformationService -->
@@ -46,4 +48,6 @@
 
         <routeBuilder ref="wfsRouteBuilder" id="wfsTransformationRoute"/>
     </camelContext>
+
+    <service ref="featureTransformationService" interface="org.codice.ddf.spatial.ogc.wfs.catalog.message.api.FeatureTransformationService"/>
 </blueprint>

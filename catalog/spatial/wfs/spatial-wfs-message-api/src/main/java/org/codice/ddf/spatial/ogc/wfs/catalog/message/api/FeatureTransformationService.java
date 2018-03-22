@@ -26,7 +26,7 @@ import java.util.function.BiFunction;
  * of them returns something other than Optional.empty() or there are no FeatureTransformers left.
  */
 public interface FeatureTransformationService
-    extends BiFunction<InputStream, WfsMetadata, Optional<List<Metacard>>> {
+    extends BiFunction<InputStream, WfsMetadata, List<Optional<Metacard>>> {
 
   /**
    * @param featureCollection - the WFS response XML to be de-serialized.
@@ -34,5 +34,5 @@ public interface FeatureTransformationService
    * @return an Optional containing a java.util.List of Metacards (one for each FeatureMember in the
    *     WFS response XML) or Optional.empty().
    */
-  Optional<List<Metacard>> apply(InputStream featureCollection, WfsMetadata metadata);
+  List<Optional<Metacard>> apply(InputStream featureCollection, WfsMetadata metadata);
 }

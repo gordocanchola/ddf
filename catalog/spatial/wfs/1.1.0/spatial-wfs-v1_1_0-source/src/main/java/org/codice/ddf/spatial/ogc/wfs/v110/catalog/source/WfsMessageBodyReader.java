@@ -19,10 +19,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
-import ogc.schema.opengis.wfs_capabilities.v_1_0_0.FeatureTypeType;
+import net.opengis.wfs.v_1_1_0.FeatureTypeType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.message.api.FeatureTransformationService;
 import org.codice.ddf.spatial.ogc.wfs.catalog.message.api.WfsMetadata;
@@ -62,8 +64,19 @@ public class WfsMessageBodyReader implements MessageBodyReader<WfsFeatureCollect
       MediaType mediaType,
       MultivaluedMap<String, String> multivaluedMap,
       InputStream inputStream) {
-    List<Metacard> featureMembers =
-        featureTransformationService.apply(inputStream, wfsMetadata).orElse(new ArrayList<>());
+
+    List<Optional<Metacard>> featureMemberOptionals =
+        featureTransformationService.apply(inputStream, wfsMetadata);
+    List<Metacard> featureMembers = new ArrayList<>();
+
+    if (featureMembers != null) {
+      featureMembers =
+          featureMemberOptionals
+              .stream()
+              .filter(Optional::isPresent)
+              .map(Optional::get)
+              .collect(Collectors.toList());
+    }
 
     WfsFeatureCollection result = new WfsFeatureCollection();
     result.setFeatureMembers(featureMembers);

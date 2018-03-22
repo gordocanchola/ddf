@@ -35,6 +35,8 @@
 
     <reference id="metacardTypeRegistry" interface="org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.api.WfsMetacardTypeRegistry"/>
 
+    <reference id="featureTransformationService" interface="org.codice.ddf.spatial.ogc.wfs.catalog.message.api.FeatureTransformationService"/>
+
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.wfs.v110.catalog.source.WfsFederatedSource.id"
             factory-pid="Wfs_v110_Federated_Source"
@@ -43,7 +45,7 @@
                               init-method="init" destroy-method="destroy">
             <argument ref="encryptionService"/>
             <argument ref="metacardTypeRegistry"/>
-            
+            <argument ref="featureTransformationService"/>
             <property name="context" ref="blueprintBundleContext"/>
             <property name="filterAdapter" ref="filterAdapter"/>
             <property name="wfsUrl" value=""/>

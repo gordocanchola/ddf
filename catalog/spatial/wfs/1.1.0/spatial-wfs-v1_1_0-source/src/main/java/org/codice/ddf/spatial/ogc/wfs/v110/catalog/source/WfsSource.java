@@ -270,13 +270,16 @@ public class WfsSource extends AbstractWfsSource {
   }
 
   public WfsSource(
-      EncryptionService encryptionService, WfsMetacardTypeRegistry wfsMetacardTypeRegistry) {
+      EncryptionService encryptionService,
+      WfsMetacardTypeRegistry wfsMetacardTypeRegistry,
+      FeatureTransformationService featureTransformationService) {
     scheduler =
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("wfsSourceThread"));
     this.encryptionService = encryptionService;
     this.wfsMetadata =
         new WfsMetadataImpl<>(this::getId, this::getCoordinateOrder, FeatureTypeType.class);
+    this.featureTransformationService = featureTransformationService;
     this.wfsMetacardTypeRegistry = wfsMetacardTypeRegistry;
   }
 
@@ -429,7 +432,7 @@ public class WfsSource extends AbstractWfsSource {
         provider,
         new WfsResponseExceptionMapper(),
         new XmlSchemaMessageBodyReaderWfs11(),
-        wfsMessageBodyReader);
+        new WfsMessageBodyReader(featureTransformationService, wfsMetadata));
   }
 
   private void setupAvailabilityPoll() {
@@ -579,6 +582,9 @@ public class WfsSource extends AbstractWfsSource {
         if (schema != null) {
           FeatureMetacardType featureMetacardType =
               createFeatureMetacardTypeRegistration(featureTypeType, ftSimpleName, schema);
+
+          lookupFeatureConverter(
+              ftSimpleName, featureMetacardType, featureTypeType.getDefaultSRS());
 
           this.featureTypeFilters.put(
               featureMetacardType.getFeatureType(),
