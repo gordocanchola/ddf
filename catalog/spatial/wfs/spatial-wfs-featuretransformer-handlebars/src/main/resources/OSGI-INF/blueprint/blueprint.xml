@@ -33,5 +33,3 @@
 
     <reference id="wfsMetacardTypeRegistry" interface="org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardTypeRegistry"/>
 </blueprint>
-
-

@@ -65,4 +65,8 @@ public final class WfsMetadataImpl<T> implements WfsMetadata<T> {
   public String getFeatureMemberNodeName() {
     return this.featureMemberNodeName;
   }
+
+  public Class<T> getDescriptorClass() {
+    return descriptorClass;
+  }
 }

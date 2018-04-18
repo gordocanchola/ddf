@@ -18,12 +18,32 @@ import java.util.Optional;
 
 /**
  * WfsMetacardTypeRegistry is used to associate enhanced FeatureMetacardTypes with a source and
- * simple name. This allows
+ * simple name. This allows the FeatureTransformers to access MetacardType without relying on the
+ * source directly.
+ *
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * be removed in a future version of the library. </b>
  */
 public interface WfsMetacardTypeRegistry {
+
+  /**
+   * Lookup a MetacardType by source Id and simple name
+   *
+   * @param sourceId Id of the source that registered the MetacardType
+   * @param simpleName name of the MetacardType's FeatureType
+   * @return Optional containing the MetacardType if found
+   */
   Optional<MetacardType> lookupMetacardTypeBySimpleName(String sourceId, String simpleName);
 
+  /**
+   * Add a MetacardType to the registry. Stored by sourceId and simpleName
+   *
+   * @param metacardType MetacardType to be stored
+   * @param sourceId Id of the source that is storing the MetacardType
+   * @param featureSimpleName The MetacardType's FeatureType name
+   */
   void registerMetacardType(MetacardType metacardType, String sourceId, String featureSimpleName);
 
+  /** Used to clear all entries of the registry */
   void clear();
 }

@@ -87,11 +87,11 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
 
   private static final XMLEventFactory XML_EVENT_FACTORY = XMLEventFactory.newInstance();
 
-  static final String ATTRIBUTE_NAME = "attributeName";
+  private static final String ATTRIBUTE_NAME = "attributeName";
 
-  static final String FEATURE_NAME = "featureName";
+  private static final String FEATURE_NAME = "featureName";
 
-  static final String TEMPLATE = "template";
+  private static final String TEMPLATE = "template";
 
   private static final String UTF8_ENCODING = "UTF-8";
 
@@ -121,6 +121,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
       LOGGER.debug("Transformer state is invalid: {}, {}", featureType, mappingEntries);
       return Optional.empty();
     }
+
     lookupMetacardType(metadata);
     if (metacardType == null) {
       return Optional.empty();
@@ -132,50 +133,11 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
       return Optional.empty();
     }
 
-    MetacardImpl metacard = (MetacardImpl) createMetacard(contextMap);
-
-    String id = null;
-    if (StringUtils.isBlank(metacard.getId())) {
-      id = contextMap.get(METACARD_ID);
-      if (StringUtils.isNotBlank(id)) {
-        metacard.setId(id);
-      } else {
-        LOGGER.debug("Feature id is blank. Unable to set metacard id.");
-      }
-    }
-
-    metacard.setSourceId(metadata.getId());
-
-    Date date = new Date();
-    if (metacard.getEffectiveDate() == null) {
-      metacard.setEffectiveDate(date);
-    }
-    if (metacard.getCreatedDate() == null) {
-      metacard.setCreatedDate(date);
-    }
-    if (metacard.getModifiedDate() == null) {
-      metacard.setModifiedDate(date);
-    }
-
-    if (StringUtils.isBlank(metacard.getTitle())) {
-      metacard.setTitle(id);
-    }
-    metacard.setContentTypeName(metacardType.getName());
-    try {
-      metacard.setTargetNamespace(
-          new URI(WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName()));
-    } catch (URISyntaxException e) {
-      LOGGER.debug(
-          "Unable to set Target Namespace on metacard: {}.",
-          WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName(),
-          e);
-    }
-
-    return Optional.of(metacard);
+    return Optional.of(createMetacard(contextMap, metadata.getId()));
   }
 
   /**
-   * Reads in the FeatureMember from the inputstream, populating the contextMap with the XML tag
+   * Reads in the FeatureMember from the input stream, populating the contextMap with the XML tag
    * names and values
    *
    * @param inputStream the stream containing the FeatureMember xml document
@@ -294,46 +256,50 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
   private void readGmlData(
       XMLEventReader xmlEventReader, String elementName, Map<String, String> contextMap)
       throws XMLStreamException {
-    int count = 0;
-    XMLEventWriter eventWriter = null;
+
+    if (!xmlEventReader.peek().isStartElement()) {
+      LOGGER.debug(
+          "Problem reading gml data for element: {}. Invalid xml element provided.", elementName);
+      return;
+    }
+
     StringWriter stringWriter = new StringWriter();
-    boolean readData = true;
+    XMLEventWriter eventWriter = XML_OUTPUT_FACTORY.createXMLEventWriter(stringWriter);
+
+    if (eventWriter == null) {
+      LOGGER.debug("Problem reading gml data for element: {}. Event writer is null", elementName);
+      return;
+    }
+
+    int count = 0;
+    boolean addEvent = true;
 
     try {
-      while (readData) {
+      while (addEvent) {
         XMLEvent xmlEvent = xmlEventReader.nextEvent();
-        if (xmlEvent.isStartElement()) {
-          if (count == 0) {
-            eventWriter = XML_OUTPUT_FACTORY.createXMLEventWriter(stringWriter);
-          }
-          eventWriter.add(addNamespacesToStartElement(xmlEvent.asStartElement()));
 
+        // populate the start element with the namespaces
+        if (xmlEvent.isStartElement()) {
+          xmlEvent = addNamespacesToStartElement(xmlEvent.asStartElement());
           count++;
         } else if (xmlEvent.isEndElement()) {
           if (count == 0) {
-            if (eventWriter != null) {
-              eventWriter.flush();
-            }
-            readData = false;
-          } else {
-            eventWriter.add(xmlEvent);
+            addEvent = false;
+            eventWriter.flush();
+            LOGGER.debug("String writer: {}", stringWriter);
+            contextMap.put(elementName, stringWriter.toString());
           }
           count--;
-        } else {
-          if (eventWriter != null) {
-            eventWriter.add(xmlEvent);
-          }
+        }
+
+        if (addEvent) {
+          eventWriter.add(xmlEvent);
         }
       }
     } finally {
-      if (eventWriter != null) {
-        eventWriter.close();
-      }
+      eventWriter.close();
       IOUtils.closeQuietly(stringWriter);
     }
-
-    LOGGER.debug("String writer: {}", stringWriter);
-    contextMap.put(elementName, stringWriter.toString());
   }
 
   private void lookupMetacardType(WfsMetadata metadata) {
@@ -350,7 +316,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
     }
   }
 
-  private Metacard createMetacard(Map<String, String> contextMap) {
+  private Metacard createMetacard(Map<String, String> contextMap, String metadataId) {
     MetacardImpl metacard = new MetacardImpl(metacardType);
 
     List<Attribute> attributes =
@@ -362,6 +328,44 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
             .collect(Collectors.toList());
 
     attributes.forEach(metacard::setAttribute);
+
+    String id = null;
+    if (StringUtils.isBlank(metacard.getId())) {
+      id = contextMap.get(METACARD_ID);
+      if (StringUtils.isNotBlank(id)) {
+        metacard.setId(id);
+      } else {
+        LOGGER.debug("Feature id is blank. Unable to set metacard id.");
+      }
+    }
+
+    metacard.setSourceId(metadataId);
+
+    Date date = new Date();
+    if (metacard.getEffectiveDate() == null) {
+      metacard.setEffectiveDate(date);
+    }
+    if (metacard.getCreatedDate() == null) {
+      metacard.setCreatedDate(date);
+    }
+    if (metacard.getModifiedDate() == null) {
+      metacard.setModifiedDate(date);
+    }
+
+    if (StringUtils.isBlank(metacard.getTitle())) {
+      metacard.setTitle(id);
+    }
+    metacard.setContentTypeName(metacardType.getName());
+    try {
+      metacard.setTargetNamespace(
+          new URI(WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName()));
+    } catch (URISyntaxException e) {
+      LOGGER.debug(
+          "Unable to set Target Namespace on metacard: {}{}.",
+          WfsConstants.NAMESPACE_URN_ROOT,
+          metacardType.getName(),
+          e);
+    }
 
     return metacard;
   }
@@ -617,19 +621,8 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
       attributeMappingsList
           .stream()
           .filter(StringUtils::isNotEmpty)
-          .map(
-              string -> {
-                try {
-                  return JsonFactory.create().readValue(string, Map.class);
-                } catch (JsonException e) {
-                  LOGGER.debug("Failed to parse attribute mapping json '{}'", string, e);
-                }
-                return null;
-              })
-          .filter(Objects::nonNull)
-          .filter(map -> map.get(ATTRIBUTE_NAME) instanceof String)
-          .filter(map -> map.get(FEATURE_NAME) instanceof String)
-          .filter(map -> map.get(TEMPLATE) instanceof String)
+          .map(this::jsonToMap)
+          .filter(this::validAttributeMapping)
           .forEach(
               map ->
                   addAttributeMapping(
@@ -637,6 +630,22 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
                       (String) map.get(FEATURE_NAME),
                       (String) map.get(TEMPLATE)));
     }
+  }
+
+  private Map jsonToMap(String jsonValue) {
+    try {
+      return JsonFactory.create().readValue(jsonValue, Map.class);
+    } catch (JsonException e) {
+      LOGGER.debug("Failed to parse attribute mapping json '{}'", jsonValue, e);
+    }
+    return null;
+  }
+
+  private boolean validAttributeMapping(Map map) {
+    return map != null
+        && map.get(ATTRIBUTE_NAME) instanceof String
+        && map.get(FEATURE_NAME) instanceof String
+        && map.get(TEMPLATE) instanceof String;
   }
 
   private String convertToBytes(String value, String unit) {

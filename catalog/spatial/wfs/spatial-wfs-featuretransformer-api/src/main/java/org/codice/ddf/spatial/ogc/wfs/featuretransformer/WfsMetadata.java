@@ -18,7 +18,10 @@ import java.util.List;
 /**
  * Provides a description of the structure of the WFS response XML.
  *
- * @param <T> - typically a FeatureTypeType describing FeatureMemeber fields.
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * be removed in a future version of the library. </b>
+ *
+ * @param <T> - typically a FeatureTypeType describing FeatureMember fields.
  */
 public interface WfsMetadata<T> {
   /** @return The value to be used as an Id on the metacard */

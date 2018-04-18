@@ -23,6 +23,9 @@ import java.util.function.BiFunction;
  * WFS response into individual FeatureMembers and passes those FeatureTransformer services. It
  * passes the FeatureMember to FeatureTransformers in some implementation-dependent order until one
  * of them returns something other than Optional.empty() or there are no FeatureTransformers left.
+ *
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * be removed in a future version of the library. </b>
  */
 public interface FeatureTransformationService
     extends BiFunction<InputStream, WfsMetadata, List<Metacard>> {

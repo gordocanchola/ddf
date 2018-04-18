@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.wfs.catalog.message;
+package org.codice.ddf.spatial.ogc.wfs.featuretransformer.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -34,13 +34,13 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.component.bean.ProxyHelper;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.SimpleRegistry;
-import org.codice.ddf.spatial.ogc.wfs.catalog.message.api.FeatureTransformer;
-import org.codice.ddf.spatial.ogc.wfs.catalog.message.api.WfsMetadata;
+import org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformer;
+import org.codice.ddf.spatial.ogc.wfs.featuretransformer.WfsMetadata;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class FeatureTransformerServiceTest {
+public class FeatureTransformationServiceTest {
   private static final int FEATURE_MEMBER_COUNT = 10;
 
   private CamelContext camelContext;
@@ -66,20 +66,11 @@ public class FeatureTransformerServiceTest {
     camelContext.start();
   }
 
-  private void setupTransformers() {
-    transformerList = new ArrayList<>();
-    FeatureTransformer mockTransformer = mock(FeatureTransformer.class);
-    Optional optional = Optional.of(mock(Metacard.class));
-    when(mockTransformer.apply(any(InputStream.class), any(WfsMetadata.class)))
-        .thenReturn(optional);
-    transformerList.add(mockTransformer);
-  }
-
   @Test
-  public void testApply() throws Exception {
+  public void testApply() {
     InputStream inputStream =
         new BufferedInputStream(
-            FeatureTransformerServiceTest.class.getResourceAsStream("/Neverland.xml"));
+            FeatureTransformationServiceTest.class.getResourceAsStream("/Neverland.xml"));
 
     WfsMetadata wfsMetadata = mock(WfsMetadata.class);
     when(wfsMetadata.getFeatureMemberNodeName()).thenReturn("featureMember");
@@ -98,5 +89,14 @@ public class FeatureTransformerServiceTest {
     }
 
     assertThat(metacards, hasSize(10));
+  }
+
+  private void setupTransformers() {
+    transformerList = new ArrayList<>();
+    FeatureTransformer mockTransformer = mock(FeatureTransformer.class);
+    Optional optional = Optional.of(mock(Metacard.class));
+    when(mockTransformer.apply(any(InputStream.class), any(WfsMetadata.class)))
+        .thenReturn(optional);
+    transformerList.add(mockTransformer);
   }
 }

@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.impl;
 
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
@@ -44,15 +44,13 @@ public class WfsMetacardTypeRegistryTest {
 
   private ServiceRegistration mockServiceRegistration;
 
-  private ServiceReference mockServiceReference;
-
   private MetacardType mockMetacardType;
 
   @Before
   public void setup() {
     mockBundleContext = mock(BundleContext.class);
     mockServiceRegistration = mock(ServiceRegistration.class);
-    mockServiceReference = mock(ServiceReference.class);
+    ServiceReference mockServiceReference = mock(ServiceReference.class);
     mockMetacardType = mock(MetacardType.class);
 
     when(mockServiceRegistration.getReference()).thenReturn(mockServiceReference);
@@ -83,16 +81,16 @@ public class WfsMetacardTypeRegistryTest {
     Optional<MetacardType> MetacardTypeOptional =
         wfsMetacardTypeRegistry.lookupMetacardTypeBySimpleName(
             TEST_SOURCE_ID, TEST_FEATURE_SIMPLE_NAME);
-    assertTrue(MetacardTypeOptional.isPresent());
+    assertThat(MetacardTypeOptional.isPresent(), is(true));
 
     MetacardTypeOptional =
         wfsMetacardTypeRegistry.lookupMetacardTypeBySimpleName(
             "different-source", TEST_FEATURE_SIMPLE_NAME);
-    assertFalse(MetacardTypeOptional.isPresent());
+    assertThat(MetacardTypeOptional.isPresent(), is(false));
 
     MetacardTypeOptional =
         wfsMetacardTypeRegistry.lookupMetacardTypeBySimpleName(TEST_SOURCE_ID, "different-name");
-    assertFalse(MetacardTypeOptional.isPresent());
+    assertThat(MetacardTypeOptional.isPresent(), is(false));
   }
 
   @Test
@@ -122,10 +120,10 @@ public class WfsMetacardTypeRegistryTest {
   public void testLookupNullValues() {
     Optional<MetacardType> MetacardTypeOptional =
         wfsMetacardTypeRegistry.lookupMetacardTypeBySimpleName(null, TEST_FEATURE_SIMPLE_NAME);
-    assertFalse(MetacardTypeOptional.isPresent());
+    assertThat(MetacardTypeOptional.isPresent(), is(false));
 
     MetacardTypeOptional =
         wfsMetacardTypeRegistry.lookupMetacardTypeBySimpleName(TEST_SOURCE_ID, null);
-    assertFalse(MetacardTypeOptional.isPresent());
+    assertThat(MetacardTypeOptional.isPresent(), is(false));
   }
 }

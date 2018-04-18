@@ -13,9 +13,6 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.transformer.handlebars;
 
-import static org.codice.ddf.spatial.ogc.wfs.transformer.handlebars.HandlebarsWfsFeatureTransformer.ATTRIBUTE_NAME;
-import static org.codice.ddf.spatial.ogc.wfs.transformer.handlebars.HandlebarsWfsFeatureTransformer.FEATURE_NAME;
-import static org.codice.ddf.spatial.ogc.wfs.transformer.handlebars.HandlebarsWfsFeatureTransformer.TEMPLATE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -57,6 +54,13 @@ public class HandlebarsWfsFeatureTransformerTest {
   private static final String EXPECTED_FEATURE_TYPE =
       "{http://www.neverland.org/peter/pan}PeterPan";
   private static final String EXPECTED_FEATURE_TYPE_LOCAL_PART = "PeterPan";
+
+  private static final String ATTRIBUTE_NAME = "attributeName";
+
+  private static final String FEATURE_NAME = "featureName";
+
+  private static final String TEMPLATE = "template";
+
   private static final String MAPPING_FORMAT =
       "{ \""
           + ATTRIBUTE_NAME
