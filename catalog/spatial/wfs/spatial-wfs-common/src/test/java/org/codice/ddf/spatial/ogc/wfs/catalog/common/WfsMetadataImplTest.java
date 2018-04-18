@@ -14,6 +14,7 @@
 package org.codice.ddf.spatial.ogc.wfs.catalog.common;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 
@@ -48,6 +49,6 @@ public class WfsMetadataImplTest {
   public void testWfsMetadataImpl() {
     assertThat(testWfsMetadata.getCoordinateOrder(), is(COORDINATE_ORDER));
     assertThat(testWfsMetadata.getId(), is(TEST_ID));
-    assertThat(testWfsMetadata.getDescriptors().size(), is(1));
+    assertThat(testWfsMetadata.getDescriptors(), hasSize(1));
   }
 }

@@ -132,44 +132,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
       return Optional.empty();
     }
 
-    MetacardImpl metacard = (MetacardImpl) createMetacard(contextMap);
-
-    String id = null;
-    if (StringUtils.isBlank(metacard.getId())) {
-      id = contextMap.get(METACARD_ID);
-      if (StringUtils.isNotBlank(id)) {
-        metacard.setId(id);
-      } else {
-        LOGGER.debug("Feature id is blank. Unable to set metacard id.");
-      }
-    }
-
-    metacard.setSourceId(metadata.getId());
-
-    Date date = new Date();
-    if (metacard.getEffectiveDate() == null) {
-      metacard.setEffectiveDate(date);
-    }
-    if (metacard.getCreatedDate() == null) {
-      metacard.setCreatedDate(date);
-    }
-    if (metacard.getModifiedDate() == null) {
-      metacard.setModifiedDate(date);
-    }
-
-    if (StringUtils.isBlank(metacard.getTitle())) {
-      metacard.setTitle(id);
-    }
-    metacard.setContentTypeName(metacardType.getName());
-    try {
-      metacard.setTargetNamespace(
-          new URI(WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName()));
-    } catch (URISyntaxException e) {
-      LOGGER.debug(
-          "Unable to set Target Namespace on metacard: {}.",
-          WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName(),
-          e);
-    }
+    MetacardImpl metacard = (MetacardImpl) createMetacard(contextMap, metadata.getId());
 
     return Optional.of(metacard);
   }
@@ -350,7 +313,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
     }
   }
 
-  private Metacard createMetacard(Map<String, String> contextMap) {
+  private Metacard createMetacard(Map<String, String> contextMap, String metadataId) {
     MetacardImpl metacard = new MetacardImpl(metacardType);
 
     List<Attribute> attributes =
@@ -362,6 +325,44 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
             .collect(Collectors.toList());
 
     attributes.forEach(metacard::setAttribute);
+
+    String id = null;
+    if (StringUtils.isBlank(metacard.getId())) {
+      id = contextMap.get(METACARD_ID);
+      if (StringUtils.isNotBlank(id)) {
+        metacard.setId(id);
+      } else {
+        LOGGER.debug("Feature id is blank. Unable to set metacard id.");
+      }
+    }
+
+    metacard.setSourceId(metadataId);
+
+    Date date = new Date();
+    if (metacard.getEffectiveDate() == null) {
+      metacard.setEffectiveDate(date);
+    }
+    if (metacard.getCreatedDate() == null) {
+      metacard.setCreatedDate(date);
+    }
+    if (metacard.getModifiedDate() == null) {
+      metacard.setModifiedDate(date);
+    }
+
+    if (StringUtils.isBlank(metacard.getTitle())) {
+      metacard.setTitle(id);
+    }
+    metacard.setContentTypeName(metacardType.getName());
+    try {
+      metacard.setTargetNamespace(
+          new URI(WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName()));
+    } catch (URISyntaxException e) {
+      LOGGER.debug(
+          "Unable to set Target Namespace on metacard: {}{}.",
+          WfsConstants.NAMESPACE_URN_ROOT,
+          metacardType.getName(),
+          e);
+    }
 
     return metacard;
   }
@@ -617,19 +618,8 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
       attributeMappingsList
           .stream()
           .filter(StringUtils::isNotEmpty)
-          .map(
-              string -> {
-                try {
-                  return JsonFactory.create().readValue(string, Map.class);
-                } catch (JsonException e) {
-                  LOGGER.debug("Failed to parse attribute mapping json '{}'", string, e);
-                }
-                return null;
-              })
-          .filter(Objects::nonNull)
-          .filter(map -> map.get(ATTRIBUTE_NAME) instanceof String)
-          .filter(map -> map.get(FEATURE_NAME) instanceof String)
-          .filter(map -> map.get(TEMPLATE) instanceof String)
+          .map(this::jsonToMap)
+          .filter(this::validAttributeMapping)
           .forEach(
               map ->
                   addAttributeMapping(
@@ -637,6 +627,34 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
                       (String) map.get(FEATURE_NAME),
                       (String) map.get(TEMPLATE)));
     }
+  }
+
+  private Map jsonToMap(String jsonValue) {
+    try {
+      return JsonFactory.create().readValue(jsonValue, Map.class);
+    } catch (JsonException e) {
+      LOGGER.debug("Failed to parse attribute mapping json '{}'", jsonValue, e);
+    }
+    return null;
+  }
+
+  private boolean validAttributeMapping(Map map) {
+    if (map == null) {
+      return false;
+    }
+    if (!(map.get(ATTRIBUTE_NAME) instanceof String)) {
+      return false;
+    }
+
+    if (!(map.get(FEATURE_NAME) instanceof String)) {
+      return false;
+    }
+
+    if (!(map.get(TEMPLATE) instanceof String)) {
+      return false;
+    }
+
+    return true;
   }
 
   private String convertToBytes(String value, String unit) {

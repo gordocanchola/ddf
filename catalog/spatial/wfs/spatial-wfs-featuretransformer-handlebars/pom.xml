@@ -86,10 +86,6 @@
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
         </dependency>
-
-
-
-
         <dependency>
             <groupId>io.fastjson</groupId>
             <artifactId>boon</artifactId>
@@ -102,12 +98,12 @@
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-streaming-impl</artifactId>
-            <version>2.12.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-streaming-lib</artifactId>
-            <version>2.12.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
@@ -118,8 +114,6 @@
             <artifactId>spatial-wfs-metacardtype-registry-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-
     </dependencies>
     <build>
         <resources>
@@ -156,8 +150,6 @@
                             !org.abego.treelayout.*,
                             !com.sun.management,
                             !org.bouncycastle.crypto.*,
-                            <!--javax.xml.stream,-->
-                            <!--javax.xml.stream.events,-->
                             *
                         </Import-Package>
                         <Embed-Transitive>true</Embed-Transitive>
@@ -194,7 +186,6 @@
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.59</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>

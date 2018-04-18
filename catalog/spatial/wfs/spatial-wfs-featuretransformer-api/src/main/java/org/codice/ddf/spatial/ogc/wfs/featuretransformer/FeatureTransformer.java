@@ -22,6 +22,9 @@ import java.util.function.BiFunction;
  * Given an InputStream containing a WFS FeatureMemeber XML and the required Metadata,
  * implementations of this interface will de-serialize it into a java.util.Optional containing a
  * Metacard.
+ *
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * be removed in a future version of the library. </b>
  */
 public interface FeatureTransformer<T>
     extends BiFunction<InputStream, WfsMetadata<T>, Optional<Metacard>> {

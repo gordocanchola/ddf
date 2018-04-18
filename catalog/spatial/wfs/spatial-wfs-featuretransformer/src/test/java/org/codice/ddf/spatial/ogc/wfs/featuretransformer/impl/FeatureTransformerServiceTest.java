@@ -66,17 +66,8 @@ public class FeatureTransformerServiceTest {
     camelContext.start();
   }
 
-  private void setupTransformers() {
-    transformerList = new ArrayList<>();
-    FeatureTransformer mockTransformer = mock(FeatureTransformer.class);
-    Optional optional = Optional.of(mock(Metacard.class));
-    when(mockTransformer.apply(any(InputStream.class), any(WfsMetadata.class)))
-        .thenReturn(optional);
-    transformerList.add(mockTransformer);
-  }
-
   @Test
-  public void testApply() throws Exception {
+  public void testApply() {
     InputStream inputStream =
         new BufferedInputStream(
             FeatureTransformerServiceTest.class.getResourceAsStream("/Neverland.xml"));
@@ -98,5 +89,14 @@ public class FeatureTransformerServiceTest {
     }
 
     assertThat(metacards, hasSize(10));
+  }
+
+  private void setupTransformers() {
+    transformerList = new ArrayList<>();
+    FeatureTransformer mockTransformer = mock(FeatureTransformer.class);
+    Optional optional = Optional.of(mock(Metacard.class));
+    when(mockTransformer.apply(any(InputStream.class), any(WfsMetadata.class)))
+        .thenReturn(optional);
+    transformerList.add(mockTransformer);
   }
 }

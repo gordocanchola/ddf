@@ -23,7 +23,6 @@
         <property name="metacardTypeRegistry" ref="wfsMetacardTypeRegistry"/>
     </bean>
 
-
     <reference-list id="featureConverterFactories"
                     interface="org.codice.ddf.spatial.ogc.wfs.v110.catalog.converter.FeatureConverterFactoryV110"
                     availability="optional"/>
@@ -37,5 +36,3 @@
     <service ref="xstreamWfs11FeatureTransformer" interface="org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformer" ranking="14"/>
 
 </blueprint>
-
-

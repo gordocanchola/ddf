@@ -16,30 +16,41 @@ package org.codice.ddf.spatial.ogc.wfs.featuretransformer.impl;
 import ddf.catalog.data.Metacard;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformer;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.WfsMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class WfsTransformerProcessor {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(WfsTransformerProcessor.class);
   private List<FeatureTransformer> transformerServiceList;
 
   public WfsTransformerProcessor(List<FeatureTransformer> transformerServiceList) {
     this.transformerServiceList = transformerServiceList;
   }
 
-  public Optional<Metacard> apply(String featureMemeber, WfsMetadata metadata) {
+  public Optional<Metacard> apply(String featureMember, WfsMetadata metadata) {
 
     for (FeatureTransformer featureTransformer : transformerServiceList) {
-      InputStream featureMemberInputStream =
-          new BufferedInputStream(new ByteArrayInputStream(featureMemeber.getBytes()));
 
-      Optional<Metacard> metacardOptional =
-          featureTransformer.apply(featureMemberInputStream, metadata);
+      try (InputStream featureMemberInputStream =
+          new BufferedInputStream(new ByteArrayInputStream(featureMember.getBytes()))) {
+        Optional<Metacard> metacardOptional =
+            featureTransformer.apply(featureMemberInputStream, metadata);
 
-      if (metacardOptional.isPresent()) {
-        return metacardOptional;
+        if (metacardOptional.isPresent()) {
+          return metacardOptional;
+        }
+      } catch (IOException e) {
+        LOGGER.debug(
+            "Error transforming feature member:{}, with feature transformer: {}",
+            featureMember,
+            featureTransformer);
       }
     }
 
